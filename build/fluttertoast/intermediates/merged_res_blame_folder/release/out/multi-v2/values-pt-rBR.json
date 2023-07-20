@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "D:\\Satria Ario Dharma\\UBJ\\staff_cleaner\\build\\fluttertoast\\intermediates\\merged_res\\release\\values-pt-rBR\\values-pt-rBR.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Rio\\.gradle\\caches\\transforms-3\\9460827f76d1da551b30ab9b7dcfa7bc\\transformed\\core-1.6.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "D:\\Satria Ario Dharma\\UBJ\\staff_cleaner\\build\\fluttertoast\\intermediates\\incremental\\mergeReleaseResources\\merged.dir\\values-pt-rBR\\values-pt-rBR.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Rio\\.gradle\\caches\\transforms-3\\9460827f76d1da551b30ab9b7dcfa7bc\\transformed\\core-1.6.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                }
+            ]
+        }
+    ]
+}

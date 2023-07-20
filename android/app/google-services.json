@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "401522117542",
+    "project_id": "staff-cleaner-34fc2",
+    "storage_bucket": "staff-cleaner-34fc2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401522117542:android:705ba722bc23a87fe39d67",
+        "android_client_info": {
+          "package_name": "com.example.staff_cleaner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBr9vYxKAe80uOOmDqp1H4Cxo35bPjMcOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
