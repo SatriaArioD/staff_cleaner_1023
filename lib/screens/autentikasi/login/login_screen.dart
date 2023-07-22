@@ -74,7 +74,7 @@ class LoginScreen extends StatelessWidget {
 
                         final res = await fs.signInWithEmailAndPassword(getEmail, getPassword);
                         final user = res.user;
-                        if (user?.email == "admin@gmail.com") {
+                        if (user?.email == "adm.yukbersihin@gmail.com") {
                           navigatePushAndRemove(const AdminMain());
                         } else {
                           navigatePushAndRemove(const StaffMain());
