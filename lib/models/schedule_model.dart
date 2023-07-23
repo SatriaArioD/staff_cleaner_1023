@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:staff_cleaner/models/address_model.dart';
 import 'package:staff_cleaner/models/customer_model.dart';
@@ -19,6 +20,11 @@ class ScheduleModel extends Equatable {
     this.items,
     this.staffs,
   });
+
+  factory ScheduleModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return ScheduleModel.fromMap(data);
+  }
 
   factory ScheduleModel.fromMap(Map<String, dynamic> json) {
     return ScheduleModel(

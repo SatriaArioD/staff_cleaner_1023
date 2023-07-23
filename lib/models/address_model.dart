@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class AddressModel extends Equatable {
@@ -12,6 +13,11 @@ class AddressModel extends Equatable {
     this.longitude,
     this.electricalPower,
   });
+
+  factory AddressModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return AddressModel.fromMap(data);
+  }
 
   factory AddressModel.fromMap(Map<String, dynamic> map) {
     return AddressModel(

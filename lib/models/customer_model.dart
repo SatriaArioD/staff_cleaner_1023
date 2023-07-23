@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:staff_cleaner/models/address_model.dart';
 
@@ -17,6 +18,11 @@ class CustomerModel extends Equatable {
     this.knowFrom,
     this.addresses,
   });
+
+  factory CustomerModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return CustomerModel.fromMap(data);
+  }
 
   factory CustomerModel.fromMap(Map<String, dynamic> map) {
     return CustomerModel(
