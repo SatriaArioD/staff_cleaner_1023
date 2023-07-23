@@ -27,55 +27,72 @@ class _TextfieldDateComponentState extends State<TextfieldDateComponent> {
       onChanged: widget.onChanged,
       controller: widget.controller,
       cursorColor: Colors.black,
+      readOnly: true,
       decoration: InputDecoration(
-          suffixIcon: widget.type == "date"
-              ? IconButton(
-                  icon: Icon(
-                    Icons.date_range,
-                    color: Theme.of(context).primaryColorDark,
-                  ),
-                  onPressed: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1960),
-                      lastDate: DateTime(2099),
-                    ).then((date) {
-                      //tambahkan setState dan panggil variabel _dateTime.
-                      setState(() {
-                        widget.controller?.text = "${date?.day}/${date?.month}/${date?.year}";
-                      });
-                    });
-                  },
-                )
-              : IconButton(
-                  icon: Icon(
-                    Icons.lock_clock,
-                    color: Theme.of(context).primaryColorDark,
-                  ),
-                  onPressed: () {
-                    showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    ).then((time) {
-                      //tambahkan setState dan panggil variabel _dateTime.
-                      setState(() {
-                        widget.controller?.text = "${time?.hour}:${time?.minute}";
-                      });
-                    });
-                  },
+        suffixIcon: widget.type == "date"
+            ? IconButton(
+                icon: Icon(
+                  Icons.date_range,
+                  color: Theme.of(context).primaryColorDark,
                 ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.grey, width: 2.0),
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          filled: true,
-          hintStyle: TextStyle(color: Colors.grey[800]),
-          hintText: widget.hintText,
-          fillColor: widget.color),
+                onPressed: () {
+                  showDatePickerDialog();
+                },
+              )
+            : IconButton(
+                icon: Icon(
+                  Icons.lock_clock,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  showTimePickerDialog();
+                },
+              ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.grey, width: 2.0),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        hintStyle: TextStyle(color: Colors.grey[800]),
+        hintText: widget.hintText,
+        fillColor: widget.color,
+      ),
+      onTap: () {
+        if (widget.type == 'date') {
+          showDatePickerDialog();
+        } else {
+          showTimePickerDialog();
+        }
+      },
     );
+  }
+
+  void showDatePickerDialog() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1960),
+      lastDate: DateTime(2099),
+    ).then((date) {
+      //tambahkan setState dan panggil variabel _dateTime.
+      setState(() {
+        widget.controller?.text = "${date?.day}/${date?.month}/${date?.year}";
+      });
+    });
+  }
+
+  void showTimePickerDialog() {
+    showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    ).then((time) {
+      //tambahkan setState dan panggil variabel _dateTime.
+      setState(() {
+        widget.controller?.text = "${time?.hour}:${time?.minute}";
+      });
+    });
   }
 }

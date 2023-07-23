@@ -1,13 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:staff_cleaner/screens/admin/tambah-data/tambah_data_customer.dart';
+import 'package:staff_cleaner/screens/admin/form/form_customer_screen.dart';
+import 'package:staff_cleaner/screens/admin/form/form_schedule_screen.dart';
 import 'package:staff_cleaner/values/navigate_utils.dart';
 
 import '../../component/bottom-bar/bottom_bar_admin_component.dart';
-import '../../main.dart';
 import '../../services/firebase_services.dart';
 import '../../values/color.dart';
-import '../../values/kunci_utils.dart';
 import '../models/item_menu.dart';
 import 'home/home_admin_screen.dart';
 import 'list-user/list_user_staff.dart';
@@ -61,7 +59,51 @@ class _AdminMainState extends State<AdminMain> {
         extendBody: true,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            navigatePush(TambahDataCustomer());
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.white,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              isScrollControlled: true,
+              builder: (context) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          navigatePush(const FormCustomerScreen());
+                        },
+                        title: const Text(
+                          'Input Customer',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const Divider(height: 0),
+                      ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          navigatePush(const FormScheduleScreen());
+                        },
+                        title: const Text(
+                          'Input Jadwal',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
           },
           backgroundColor: primaryColor,
           child: Icon(Icons.add),
