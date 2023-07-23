@@ -40,7 +40,7 @@ class _SelesaiStaffScreenState extends State<SelesaiStaffScreen> {
                 if (state is LoadedState) {
                   final List<ScheduleModel> finishList = (state.data ?? [])
                       .where((element) =>
-                          element.isFinish! &&
+                          (element.isFinish ?? false) &&
                           element.staffs!
                               .any((element) => element.email == user?.email))
                       .toList();

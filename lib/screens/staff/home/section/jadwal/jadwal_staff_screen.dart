@@ -39,7 +39,7 @@ class _JadwalStaffScreenState extends State<JadwalStaffScreen> {
               if (state is LoadedState) {
                 final List<ScheduleModel> scheduledList = (state.data ?? [])
                     .where((element) =>
-                        !element.isFinish! &&
+                        !(element.isFinish ?? true) &&
                         element.staffs!
                             .any((element) => element.email == user?.email))
                     .toList();
