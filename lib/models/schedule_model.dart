@@ -5,6 +5,7 @@ import 'package:staff_cleaner/models/customer_model.dart';
 import 'package:staff_cleaner/models/staff_model.dart';
 
 class ScheduleModel extends Equatable {
+  final String? id;
   final CustomerModel? customer;
   final AddressModel? address;
   final String? serviceDate;
@@ -13,6 +14,7 @@ class ScheduleModel extends Equatable {
   final List<StaffModel>? staffs;
 
   const ScheduleModel({
+    this.id,
     this.customer,
     this.address,
     this.serviceDate,
@@ -26,23 +28,35 @@ class ScheduleModel extends Equatable {
     return ScheduleModel.fromMap(data);
   }
 
-  factory ScheduleModel.fromMap(Map<String, dynamic> json) {
+  factory ScheduleModel.fromMap(Map<String, dynamic> map) {
     return ScheduleModel(
-      customer: json['customer'] != null
-          ? CustomerModel.fromMap(json['customer'])
+      id: map['id'],
+      customer: map['customer'] != null
+          ? CustomerModel.fromMap(map['customer'])
           : null,
-      address: json['address'] != null
-          ? AddressModel.fromMap(json['address'])
+      address:
+          map['address'] != null ? AddressModel.fromMap(map['address']) : null,
+      serviceDate: map['serviceDate'],
+      serviceTime: map['serviceTime'],
+      items: map['items'] != null
+          ? (map['items'] as List).map((e) => e as Map).toList()
           : null,
-      serviceDate: json['serviceDate'],
-      serviceTime: json['serviceTime'],
-      items: json['items'] != null
-          ? (json['items'] as List).map((e) => e as Map).toList()
-          : null,
-      staffs: json['staffs'] != null
-          ? (json['staffs'] as List).map((e) => StaffModel.fromMap(e)).toList()
+      staffs: map['staffs'] != null
+          ? (map['staffs'] as List).map((e) => StaffModel.fromMap(e)).toList()
           : null,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'customer': customer?.toMap(),
+      'address': address?.toMap(),
+      'serviceDate': serviceDate,
+      'serviceTime': serviceTime,
+      'items': items,
+      'staffs': staffs?.map((e) => e.toMap()).toList(),
+    };
   }
 
   @override
