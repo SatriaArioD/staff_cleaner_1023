@@ -19,4 +19,8 @@ class ScheduleService {
   }) async {
     await scheduleRefrence.doc(schedule.id!).set(schedule.toMap());
   }
+
+  Future delete({required String id}) async {
+    await scheduleRefrence.doc(id).delete();
+  }
 }

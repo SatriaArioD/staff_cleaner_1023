@@ -1,27 +1,30 @@
 import 'dart:typed_data';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:staff_cleaner/models/schedule_model.dart';
 import 'package:staff_cleaner/services/firebase_services.dart';
-import 'package:staff_cleaner/values/output_utils.dart';
 
 Future<Uint8List> makePdf(
-    String noSurat, QueryDocumentSnapshot<Map<String, dynamic>> item, User? user) async {
+  String noSurat,
+  ScheduleModel schedule,
+  User? user,
+) async {
   final fs = FirebaseServices();
   final pdf = Document();
-  final imageLogo =
-      MemoryImage((await rootBundle.load('assets/images/logo.png')).buffer.asUint8List());
+  final imageLogo = MemoryImage(
+      (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List());
 
-  List<dynamic> itemYangDibersihkan = item["item_yang_dibersihkan"];
+  List<dynamic> itemYangDibersihkan = schedule.items ?? [];
 
   final total = itemYangDibersihkan.fold(0, (i, el) {
     return i + el["harga"] as int;
   });
 
-  final qUser = await fs.getDataCollectionByQuery("staff", "email", user?.email);
+  final qUser =
+      await fs.getDataCollectionByQuery("staff", "email", user?.email);
 
   final date = DateTime.now();
 
@@ -49,9 +52,10 @@ Future<Uint8List> makePdf(
                 Text("No: $noSurat"),
                 V(8.0),
                 Text("Date           : ${date.day}/${date.month}/${date.year}"),
-                Text("Customer   : ${item["nama_lengkap"]}"),
+                Text("Customer   : ${schedule.customer?.name ?? '-'}"),
                 Text("Addres       :"),
-                Container(width: 170, child: Text("${item["alamat_lengkap"]}"))
+                Container(
+                    width: 170, child: Text(schedule.address?.address ?? '-'))
               ]),
             ]),
             V(64.0),
@@ -95,24 +99,43 @@ Future<Uint8List> makePdf(
             Container(
                 width: double.infinity,
                 color: PdfColors.grey,
-                child: Padding(padding: EdgeInsets.all(16), child: Text("TOTAL: Rp. $total"))),
+                child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text("TOTAL: Rp. $total"))),
             V(140.0),
             Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                    width: 100,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(qUser[0]["nama_lengkap"]),
-                      Divider(),
-                      Text('Staff cleaner'),
-                    ]))),
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                    schedule.staffs?.length ?? 0,
+                    (index) => Container(
+                      margin: EdgeInsets.only(top: index == 0 ? 0 : 30),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(schedule.staffs![index].fullName ?? '-'),
+                          Divider(),
+                          Text(
+                              'Staff cleaner ${schedule.staffs!.length > 1 ? '${index + 1}' : ''}'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             V(64.0),
             Text("Terms of Payment:"),
             Text("- The payment transfer to our account:"),
             Padding(
-                padding: EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 8.0),
                 child: Text("BCA 0948589772 PT. YUK BERSIHIN SEJAHTERAH")),
-            Text("- Please send us the payment proof to our Whatsapp 08111129089"),
+            Text(
+                "- Please send us the payment proof to our Whatsapp 08111129089"),
           ],
         );
       },
@@ -126,7 +149,7 @@ Widget PaddedText(
   final TextAlign align = TextAlign.left,
 }) =>
     Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Text(
         text,
         textAlign: align,

@@ -25,6 +25,25 @@ class ScheduleModel extends Equatable {
     this.isFinish,
   });
 
+  ScheduleModel copyWith({
+    String? serviceDate,
+    String? serviceTime,
+    List<Map<dynamic, dynamic>>? items,
+    List<StaffModel>? staffs,
+    bool? isFinish,
+  }) {
+    return ScheduleModel(
+      id: id,
+      customer: customer,
+      address: address,
+      serviceDate: serviceDate ?? this.serviceDate,
+      serviceTime: serviceTime ?? this.serviceTime,
+      items: items ?? this.items,
+      staffs: staffs ?? this.staffs,
+      isFinish: isFinish ?? this.isFinish,
+    );
+  }
+
   factory ScheduleModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return ScheduleModel.fromMap(data);

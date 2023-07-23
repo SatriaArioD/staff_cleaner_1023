@@ -21,7 +21,12 @@ import 'package:staff_cleaner/values/widget_utils.dart';
 import 'package:uuid/uuid.dart';
 
 class FormScheduleScreen extends StatefulWidget {
-  const FormScheduleScreen({Key? key}) : super(key: key);
+  final ScheduleModel? schedule;
+
+  const FormScheduleScreen({
+    Key? key,
+    this.schedule,
+  }) : super(key: key);
 
   @override
   State<FormScheduleScreen> createState() => _FormScheduleScreenState();
@@ -35,7 +40,6 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
       SingleValueDropDownController();
   final TextEditingController serviceDateController = TextEditingController();
   final TextEditingController serviceTimeController = TextEditingController();
-  final List<TextEditingController> itemsController = [TextEditingController()];
   final List<SingleValueDropDownController> staffsController = [
     SingleValueDropDownController()
   ];
@@ -59,6 +63,42 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
 
   List<StaffModel> staffList() {
     return context.watch<StaffCubit>().state.data ?? [];
+  }
+
+  @override
+  void initState() {
+    if (widget.schedule != null) {
+      customerNameController.setDropDown(
+        DropDownValueModel(
+          name: widget.schedule!.customer?.name ?? '',
+          value: widget.schedule!.customer?.toMap(),
+        ),
+      );
+      customerAddressController.setDropDown(
+        DropDownValueModel(
+          name: widget.schedule!.address?.address ?? '',
+          value: widget.schedule!.address?.toMap(),
+        ),
+      );
+      serviceDateController.text = widget.schedule!.serviceDate ?? '';
+      serviceTimeController.text = widget.schedule!.serviceTime ?? '';
+
+      items = widget.schedule!.items ?? [];
+
+      staffsController.clear();
+      for (StaffModel staff in widget.schedule!.staffs ?? []) {
+        staffsController.add(
+          SingleValueDropDownController()
+            ..setDropDown(
+              DropDownValueModel(
+                name: staff.fullName ?? '',
+                value: staff.toMap(),
+              ),
+            ),
+        );
+      }
+    }
+    super.initState();
   }
 
   @override
@@ -97,6 +137,7 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                     }).toList(),
                     controller: customerNameController,
                     isRequired: true,
+                    readOnly: widget.schedule != null,
                   ),
                   V(16),
                   TextfieldDropdownComponent(
@@ -115,6 +156,7 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                         : [],
                     controller: customerAddressController,
                     isRequired: true,
+                    readOnly: widget.schedule != null,
                   ),
                   V(16),
                   TextfieldDateComponent(
@@ -281,41 +323,61 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                     ],
                   ),
                   V(48),
-                  ButtonElevatedComponent(
-                    "Simpan",
-                    onPressed: () {
-                      if (formKey.currentState?.validate() ?? false) {
-                        if (items.isEmpty) {
-                          showToast('Item yang dibersihkan belum dipilih');
-                          return;
+                  Center(
+                    child: ButtonElevatedComponent(
+                      "Simpan",
+                      onPressed: () {
+                        if (formKey.currentState?.validate() ?? false) {
+                          if (items.isEmpty) {
+                            showToast('Item yang dibersihkan belum dipilih');
+                            return;
+                          }
+                          // add data schedule
+                          ScheduleModel schedule = ScheduleModel(
+                            id: widget.schedule?.id ?? const Uuid().v1(),
+                            customer: widget.schedule?.customer ??
+                                CustomerModel.fromMap(
+                                  customerNameController.dropDownValue!.value,
+                                ),
+                            address: widget.schedule?.address ??
+                                AddressModel.fromMap(
+                                  customerAddressController
+                                      .dropDownValue!.value,
+                                ),
+                            serviceDate: serviceDateController.text,
+                            serviceTime: serviceTimeController.text,
+                            items: items,
+                            staffs: staffsController
+                                .map((e) =>
+                                    StaffModel.fromMap(e.dropDownValue!.value))
+                                .toList(),
+                            isFinish: false,
+                          );
+
+                          context.read<ScheduleService>().update(
+                                schedule: schedule,
+                              );
+
+                          Navigator.pop(context);
                         }
-                        // add data schedule
-                        ScheduleModel schedule = ScheduleModel(
-                          id: const Uuid().v1(),
-                          customer: CustomerModel.fromMap(
-                            customerNameController.dropDownValue!.value,
-                          ),
-                          address: AddressModel.fromMap(
-                            customerAddressController.dropDownValue!.value,
-                          ),
-                          serviceDate: serviceDateController.text,
-                          serviceTime: serviceTimeController.text,
-                          items: items,
-                          staffs: staffsController
-                              .map((e) =>
-                                  StaffModel.fromMap(e.dropDownValue!.value))
-                              .toList(),
-                          isFinish: false,
-                        );
+                      },
+                    ),
+                  ),
+                  if (widget.schedule != null) ...[
+                    V(16),
+                    Center(
+                      child: ButtonElevatedComponent(
+                        "Hapus Jadwal",
+                        onPressed: () {
+                          context
+                              .read<ScheduleService>()
+                              .delete(id: widget.schedule!.id!);
 
-                        context.read<ScheduleService>().update(
-                              schedule: schedule,
-                            );
-
-                        Navigator.pop(context);
-                      }
-                    },
-                  )
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -1,8 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../../component/slider/corousel_staff_component.dart';
-import '../../../../../services/firebase_services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:staff_cleaner/component/card/card_schedule.dart';
+import 'package:staff_cleaner/cubit/base_state.dart';
+import 'package:staff_cleaner/cubit/schedule_cubit.dart';
+import 'package:staff_cleaner/models/schedule_model.dart';
+import 'package:staff_cleaner/services/firebase_services.dart';
 
 class SelesaiStaffScreen extends StatefulWidget {
   const SelesaiStaffScreen({super.key});
@@ -13,6 +16,7 @@ class SelesaiStaffScreen extends StatefulWidget {
 
 class _SelesaiStaffScreenState extends State<SelesaiStaffScreen> {
   final fs = FirebaseServices();
+
   @override
   Widget build(BuildContext context) {
     final user = fs.getUser();
@@ -21,29 +25,48 @@ class _SelesaiStaffScreenState extends State<SelesaiStaffScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream:
-                    fs.getDataTwoQueryStream("data", "email_staff", user?.email, "selesai", true),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final data = snapshot.data!.docs;
-                    return CorouselStaffComponent(
-                      items: data,
-                      showItems: const [
-                        {"title": "Nama customer", "key": "nama_lengkap"},
-                        {"title": "No Hp", "key": "no_hp"},
-                        {"title": "Alamat", "key": "alamat_lengkap"},
-                        {"title": "Tanggal layanan", "key": "tanggal_layanan"},
-                        {"title": "Jam layanan", "key": "jam_layanan"},
-                        {"title": "Daya", "key": "daya"},
-                      ],
-                    );
-                  }
-
+            BlocBuilder<ScheduleCubit, BaseState<List<ScheduleModel>>>(
+              builder: (context, state) {
+                if (state is LoadingState) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                })
+                }
+                if (state is ErrorState) {
+                  return const Center(
+                    child: Text('Terjadi Kesalahan!'),
+                  );
+                }
+                if (state is LoadedState) {
+                  final List<ScheduleModel> finishList = (state.data ?? [])
+                      .where((element) =>
+                          element.isFinish! &&
+                          element.staffs!
+                              .any((element) => element.email == user?.email))
+                      .toList();
+                  if (finishList.isEmpty) {
+                    return const Center(
+                      child: Text('Tidak ada data!'),
+                    );
+                  }
+                  return CarouselSlider(
+                    options: CarouselOptions(
+                      autoPlay: false,
+                      aspectRatio: .85,
+                      enlargeCenterPage: true,
+                    ),
+                    items: List.generate(
+                      finishList.length,
+                      (index) => CardSchedule(
+                        schedule: finishList[index],
+                        isAdmin: false,
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
           ],
         ),
       ),

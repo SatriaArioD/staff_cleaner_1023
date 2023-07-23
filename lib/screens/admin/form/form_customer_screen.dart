@@ -253,7 +253,7 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                               (index) => AddressModel(
                                 address: addressesController[index].text,
                                 latitude: latLngs[index]!.latitude,
-                                longitude: latLngs[index]!.latitude,
+                                longitude: latLngs[index]!.longitude,
                                 electricalPower:
                                     electricalPowersController[index].text,
                               ),
