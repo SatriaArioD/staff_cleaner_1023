@@ -26,7 +26,7 @@ class LoadingState<T> extends BaseState<T> {
 class LoadedState<T> extends BaseState<T> {
   const LoadedState({
     T? data,
-  }) : super();
+  }) : super(data: data);
 }
 
 /// error state

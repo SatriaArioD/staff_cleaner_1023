@@ -3,17 +3,22 @@ import 'package:flutter/material.dart';
 class TextfieldDateComponent extends StatefulWidget {
   final String hintText;
   final Function(String)? onChanged;
+  final String? Function(String?)? validator;
   final TextEditingController? controller;
   final Color color;
   final String type;
+  final bool isRequired;
 
-  const TextfieldDateComponent(
-      {super.key,
-      this.hintText = "",
-      this.onChanged,
-      this.controller,
-      this.color = Colors.white70,
-      this.type = "date"});
+  const TextfieldDateComponent({
+    super.key,
+    this.hintText = "",
+    this.onChanged,
+    this.validator,
+    this.controller,
+    this.color = Colors.white70,
+    this.type = "date",
+    this.isRequired = false,
+  });
 
   @override
   State<TextfieldDateComponent> createState() => _TextfieldDateComponentState();
@@ -22,9 +27,18 @@ class TextfieldDateComponent extends StatefulWidget {
 class _TextfieldDateComponentState extends State<TextfieldDateComponent> {
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       keyboardType: TextInputType.datetime,
       onChanged: widget.onChanged,
+      validator: widget.validator ??
+          (widget.isRequired
+              ? (val) {
+                  if (val?.isEmpty ?? true) {
+                    return 'field ini tidak boleh kosong';
+                  }
+                  return null;
+                }
+              : null),
       controller: widget.controller,
       cursorColor: Colors.black,
       readOnly: true,

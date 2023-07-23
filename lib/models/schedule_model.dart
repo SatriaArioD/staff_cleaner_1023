@@ -12,6 +12,7 @@ class ScheduleModel extends Equatable {
   final String? serviceTime;
   final List<Map<dynamic, dynamic>>? items;
   final List<StaffModel>? staffs;
+  final bool? isFinish;
 
   const ScheduleModel({
     this.id,
@@ -21,6 +22,7 @@ class ScheduleModel extends Equatable {
     this.serviceTime,
     this.items,
     this.staffs,
+    this.isFinish,
   });
 
   factory ScheduleModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -44,6 +46,7 @@ class ScheduleModel extends Equatable {
       staffs: map['staffs'] != null
           ? (map['staffs'] as List).map((e) => StaffModel.fromMap(e)).toList()
           : null,
+      isFinish: map['isFinish'],
     );
   }
 
@@ -56,6 +59,7 @@ class ScheduleModel extends Equatable {
       'serviceTime': serviceTime,
       'items': items,
       'staffs': staffs?.map((e) => e.toMap()).toList(),
+      'isFinish': isFinish,
     };
   }
 
@@ -67,5 +71,6 @@ class ScheduleModel extends Equatable {
         serviceTime,
         items,
         staffs,
+        isFinish,
       ];
 }

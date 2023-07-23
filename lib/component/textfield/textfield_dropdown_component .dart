@@ -4,31 +4,52 @@ import 'package:flutter/material.dart';
 class TextfieldDropdownComponent extends StatelessWidget {
   final String hintText;
   final Function(Object?)? onChanged;
+  final String? Function(String?)? validator;
   final List<Map<dynamic, dynamic>>? items;
   final SingleValueDropDownController? controller;
+  final bool isRequired;
 
-  const TextfieldDropdownComponent(
-      {super.key, this.hintText = "", this.onChanged, this.items, this.controller});
+  const TextfieldDropdownComponent({
+    super.key,
+    this.hintText = "",
+    this.onChanged,
+    this.validator,
+    this.items,
+    this.controller,
+    this.isRequired = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return DropDownTextField(
-        onChanged: onChanged,
-        controller: controller,
-        textFieldDecoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Colors.grey, width: 2.0),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            filled: true,
-            hintStyle: TextStyle(color: Colors.grey[800]),
-            hintText: hintText,
-            fillColor: Colors.white),
-        dropDownList: items!
-            .map((e) => DropDownValueModel(value: e["value"], name: e["name"].toString()))
-            .toList());
+      onChanged: onChanged,
+      validator: validator ??
+          (isRequired
+              ? (val) {
+                  if (val?.isEmpty ?? true) {
+                    return 'field ini tidak boleh kosong';
+                  }
+                  return null;
+                }
+              : null),
+      controller: controller,
+      textFieldDecoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.grey, width: 2.0),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        hintStyle: TextStyle(color: Colors.grey[800]),
+        hintText: hintText,
+        fillColor: Colors.white,
+      ),
+      dropDownList: items!
+          .map((e) =>
+              DropDownValueModel(value: e["value"], name: e["name"].toString()))
+          .toList(),
+    );
   }
 }
