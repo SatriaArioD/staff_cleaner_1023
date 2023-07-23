@@ -125,7 +125,7 @@ class CardSchedule extends StatelessWidget {
                       ),
                       BodyCorousel(
                         'Jam layanan',
-                        schedule.serviceDate ?? '-',
+                        schedule.serviceTime ?? '-',
                       ),
                       BodyCorousel(
                         'Daya',
@@ -172,7 +172,7 @@ class CardSchedule extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           TextComponent(
-                            "${schedule.serviceDate} ${schedule.serviceDate}",
+                            "${schedule.serviceDate} ${schedule.serviceTime}",
                             size: 16,
                           ),
                           TextButton(
