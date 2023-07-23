@@ -10,7 +10,6 @@ import 'package:staff_cleaner/services/firebase_services.dart';
 import 'package:staff_cleaner/services/schedule_service.dart';
 import 'package:staff_cleaner/values/color.dart';
 import 'package:staff_cleaner/values/navigate_utils.dart';
-import 'package:staff_cleaner/values/output_utils.dart';
 import 'package:staff_cleaner/values/screen_utils.dart';
 
 class CardSchedule extends StatelessWidget {
@@ -24,8 +23,6 @@ class CardSchedule extends StatelessWidget {
   }) : super(key: key);
 
   final fs = FirebaseServices();
-  final noSurat = TextEditingController();
-  final noSurat1 = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -76,18 +73,41 @@ class CardSchedule extends StatelessWidget {
                           : Checkbox(
                               value: false,
                               onChanged: (bool? value) async {
-                                showLoaderDialog(context);
+                                ScheduleService scheduleService =
+                                    context.read<ScheduleService>();
 
-                                await context.read<ScheduleService>().update(
-                                      schedule: schedule.copyWith(
-                                        isFinish: true,
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      content: const Text(
+                                        'Apakah pekerjaan telah selesai',
                                       ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () async {
+                                            // dismiss dialog
+                                            Navigator.pop(context);
+
+                                            await scheduleService.update(
+                                              schedule: schedule.copyWith(
+                                                isFinish: true,
+                                              ),
+                                            );
+                                          },
+                                          child: const Text('Ya'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            // dismiss dialog
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Tidak'),
+                                        ),
+                                      ],
                                     );
-
-                                await Future.delayed(
-                                    const Duration(seconds: 1));
-
-                                Navigator.pop(context);
+                                  },
+                                );
                               },
                             ),
                 ),
@@ -144,25 +164,15 @@ class CardSchedule extends StatelessWidget {
                           alignment: Alignment.centerRight,
                           child: IconButton(
                             onPressed: () {
-                              // var noSurat = "031/INV/YBS/121123";
                               final user = fs.getUser();
 
-                              showDialogNoSurat(
-                                  context,
-                                  TextEditingController(),
-                                  TextEditingController(), () {
-                                navigatePush(
-                                  NotaStaffScreen(
-                                    noSurat:
-                                        "${noSurat.text}/INV/YBS/${noSurat1.text}",
-                                    schedule: schedule,
-                                    user: user,
-                                  ),
-                                );
-
-                                noSurat.text = "";
-                                noSurat1.text = "";
-                              });
+                              navigatePush(
+                                NotaStaffScreen(
+                                  noSurat: '',
+                                  schedule: schedule,
+                                  user: user,
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.speaker_notes),
                           ),
