@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:staff_cleaner/models/schedule_model.dart';
 import 'package:staff_cleaner/screens/staff/home/section/detail/section/map/map_screen.dart';
+import 'package:staff_cleaner/services/schedule_service.dart';
+import 'package:staff_cleaner/values/constant.dart';
 import 'package:staff_cleaner/values/screen_utils.dart';
 
 import '../../../../../component/button/button_component.dart';
@@ -15,14 +18,21 @@ import '../../../../../values/widget_utils.dart';
 
 class ScheduleDetailScreen extends StatefulWidget {
   final ScheduleModel schedule;
+  final bool isAdmin;
 
-  const ScheduleDetailScreen({super.key, required this.schedule});
+  const ScheduleDetailScreen({
+    super.key,
+    required this.schedule,
+    required this.isAdmin,
+  });
 
   @override
   State<ScheduleDetailScreen> createState() => _ScheduleDetailScreenState();
 }
 
 class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
+  List<Map<dynamic, dynamic>> items = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +105,7 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                           child: SizedBox(
                             width: 1.0.w,
                             child: TextComponent(
-                              "1. [${e["service"]}] ${e["item"]}",
+                              "${index + 1}. [${e["service"]}] ${e["item"]}",
                               size: 16,
                               weight: Lato.Light,
                             ),
@@ -107,6 +117,77 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                   );
                 },
               ),
+              if (!widget.isAdmin) ...[
+                V(8),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                    items.length,
+                    (index) => Container(
+                      margin: EdgeInsets.only(top: index == 0 ? 0 : 8),
+                      child: Card(
+                        elevation: 8,
+                        clipBehavior: Clip.hardEdge,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextComponent(
+                                "${index + 1}. [${items[index]["service"]}] ${items[index]["item"]}",
+                                size: 10,
+                                weight: Lato.Light,
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    items.removeAt(index);
+                                  });
+                                },
+                                icon: const Icon(Icons.remove),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                V(8),
+                Center(
+                  child: ButtonElevatedComponent(
+                    "Tambah item Lain",
+                    onPressed: () {
+                      return dialogList(
+                          title: "Services",
+                          item: listItemLayanan,
+                          onGetItem: (service) {
+                            logO("service", m: service);
+
+                            String title = service["title"];
+                            List<Map<String, dynamic>> itemYangDibersihkan =
+                                listItemDibershikan[title]!;
+
+                            return dialogList(
+                                title: "Item",
+                                item: itemYangDibersihkan,
+                                onGetItem: (item) {
+                                  setState(() {
+                                    items.add({
+                                      "service": title,
+                                      "item": item["title"],
+                                      "harga": item["harga"]
+                                    });
+                                  });
+
+                                  logO("item", m: item);
+                                });
+                          });
+                    },
+                  ),
+                ),
+              ],
               V(24),
               CardTextComponent(
                 "Daya listrik",
@@ -150,7 +231,27 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                     navigatePop();
                   },
                 ),
-              )
+              ),
+              if (items.isNotEmpty) ...[
+                V(16),
+                Center(
+                  child: ButtonElevatedComponent(
+                    "Update Data",
+                    onPressed: () {
+                      context.read<ScheduleService>().update(
+                            schedule: widget.schedule.copyWith(
+                              items: [
+                                ...widget.schedule.items!,
+                                ...items,
+                              ],
+                            ),
+                          );
+
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
             ]),
           ),
         ),

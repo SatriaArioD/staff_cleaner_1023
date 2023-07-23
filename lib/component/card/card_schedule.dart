@@ -51,7 +51,10 @@ class CardSchedule extends StatelessWidget {
                           ? InkWell(
                               onTap: () {
                                 navigatePush(
-                                  ScheduleDetailScreen(schedule: schedule),
+                                  ScheduleDetailScreen(
+                                    schedule: schedule,
+                                    isAdmin: isAdmin,
+                                  ),
                                 );
                               },
                               child: Row(
@@ -182,7 +185,10 @@ class CardSchedule extends StatelessWidget {
                               } else {
                                 // go to detail
                                 navigatePush(
-                                  ScheduleDetailScreen(schedule: schedule),
+                                  ScheduleDetailScreen(
+                                    schedule: schedule,
+                                    isAdmin: isAdmin,
+                                  ),
                                 );
                               }
                             },
