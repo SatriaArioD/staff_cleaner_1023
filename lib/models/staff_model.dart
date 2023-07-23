@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class StaffModel extends Equatable {
@@ -16,6 +17,11 @@ class StaffModel extends Equatable {
     this.image,
     this.isScheduled,
   });
+
+  factory StaffModel.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return StaffModel.fromMap(data);
+  }
 
   factory StaffModel.fromMap(Map<String, dynamic> map) {
     return StaffModel(
