@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:staff_cleaner/component/button/button_component.dart';
 import 'package:staff_cleaner/component/text/text_component.dart';
 import 'package:staff_cleaner/component/textfield/textfield_component.dart';
 import 'package:staff_cleaner/component/textfield/textfield_date_component.dart';
 import 'package:staff_cleaner/models/address_model.dart';
 import 'package:staff_cleaner/models/customer_model.dart';
-import 'package:staff_cleaner/screens/admin/form/select_location_screen.dart';
 import 'package:staff_cleaner/services/customer_service.dart';
 import 'package:staff_cleaner/values/color.dart';
-import 'package:staff_cleaner/values/constant.dart';
-import 'package:staff_cleaner/values/output_utils.dart';
 import 'package:staff_cleaner/values/screen_utils.dart';
 import 'package:staff_cleaner/values/widget_utils.dart';
 import 'package:uuid/uuid.dart';
 
 class FormCustomerScreen extends StatefulWidget {
-  const FormCustomerScreen({Key? key}) : super(key: key);
+  final CustomerModel? customer;
+
+  const FormCustomerScreen({
+    Key? key,
+    this.customer,
+  }) : super(key: key);
 
   @override
   State<FormCustomerScreen> createState() => _FormCustomerScreenState();
@@ -33,11 +33,43 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
   final List<TextEditingController> addressesController = [
     TextEditingController()
   ];
+  final List<TextEditingController> latsController = [TextEditingController()];
+  final List<TextEditingController> longsController = [TextEditingController()];
   final List<TextEditingController> electricalPowersController = [
     TextEditingController()
   ];
 
-  List<latlong2.LatLng?> latLngs = [null];
+  // List<latlong2.LatLng?> latLngs = [null];
+
+  @override
+  void initState() {
+    if (widget.customer != null) {
+      nameController.text = widget.customer!.name ?? '';
+      birthdateController.text = widget.customer!.birthdate ?? '';
+      phoneNumberController.text = widget.customer!.phoneNumber ?? '';
+      knowFromController.text = widget.customer!.knowFrom ?? '';
+
+      addressesController.clear();
+      latsController.clear();
+      longsController.clear();
+      electricalPowersController.clear();
+      for (AddressModel address in widget.customer!.addresses ?? []) {
+        addressesController.add(
+          TextEditingController()..text = address.address ?? '',
+        );
+        latsController.add(
+          TextEditingController()..text = address.latitude?.toString() ?? '',
+        );
+        longsController.add(
+          TextEditingController()..text = address.longitude?.toString() ?? '',
+        );
+        electricalPowersController.add(
+          TextEditingController()..text = address.electricalPower ?? '',
+        );
+      }
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +145,9 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                                   setState(() {
                                     addressesController.removeAt(index);
                                     electricalPowersController.removeAt(index);
-                                    latLngs.removeAt(index);
+                                    // latLngs.removeAt(index);
+                                    latsController.removeAt(index);
+                                    longsController.removeAt(index);
                                   });
                                 },
                                 icon: const Icon(
@@ -133,78 +167,105 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                           isRequired: true,
                         ),
                         V(16),
-                        const TextComponent(
-                          "Lokasi",
-                          color: Colors.white,
-                        ),
-                        V(8),
-                        InkWell(
-                          onTap: () async {
-                            var result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const SelectLocationScreen(),
+                        // const TextComponent(
+                        //   "Lokasi",
+                        //   color: Colors.white,
+                        // ),
+                        // V(8),
+                        // InkWell(
+                        //   onTap: () async {
+                        //     var result = await Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) =>
+                        //             const SelectLocationScreen(),
+                        //       ),
+                        //     );
+                        //
+                        //     if (result != null) {
+                        //       setState(() {
+                        //         latLngs[index] = result;
+                        //       });
+                        //     }
+                        //   },
+                        //   child: latLngs[index] == null
+                        //       ? const Center(
+                        //           child: TextComponent(
+                        //             "Pilih Lokasi",
+                        //             color: Colors.white,
+                        //             size: 18,
+                        //             weight: FontWeight.w500,
+                        //           ),
+                        //         )
+                        //       : AspectRatio(
+                        //           aspectRatio: 21 / 9,
+                        //           child: ClipRRect(
+                        //             borderRadius: BorderRadius.circular(10.0),
+                        //             child: AbsorbPointer(
+                        //               absorbing: true,
+                        //               child: FlutterMap(
+                        //                 options: MapOptions(
+                        //                   center: latLngs[index],
+                        //                   zoom: 16,
+                        //                 ),
+                        //                 nonRotatedChildren: [
+                        //                   TileLayer(
+                        //                     urlTemplate:
+                        //                         "https://api.tomtom.com/map/1/tile/basic/main/"
+                        //                         "{z}/{x}/{y}.png?key=$apiKey",
+                        //                     additionalOptions: const {
+                        //                       "apiKey": apiKey,
+                        //                     },
+                        //                   ),
+                        //                   MarkerLayer(
+                        //                     markers: [
+                        //                       Marker(
+                        //                         point: latLngs[index]!,
+                        //                         width: 35,
+                        //                         height: 35,
+                        //                         builder: (context) =>
+                        //                             const Icon(
+                        //                           Icons.location_pin,
+                        //                           color: Colors.red,
+                        //                           size: 24,
+                        //                         ),
+                        //                         anchorPos: AnchorPos.align(
+                        //                             AnchorAlign.top),
+                        //                       ),
+                        //                     ],
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //             ),
+                        //           ),
+                        //         ),
+                        // ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: 0.4.w,
+                              child: TextfieldComponent(
+                                hintText: "Latitude...",
+                                onChanged: (value) {},
+                                color: Colors.white,
+                                controller: latsController[index],
+                                inputType: TextInputType.streetAddress,
+                                isRequired: true,
                               ),
-                            );
-
-                            if (result != null) {
-                              setState(() {
-                                latLngs[index] = result;
-                              });
-                            }
-                          },
-                          child: latLngs[index] == null
-                              ? const Center(
-                                  child: TextComponent(
-                                    "Pilih Lokasi",
-                                    color: Colors.white,
-                                    size: 18,
-                                    weight: FontWeight.w500,
-                                  ),
-                                )
-                              : AspectRatio(
-                                  aspectRatio: 21 / 9,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: AbsorbPointer(
-                                      absorbing: true,
-                                      child: FlutterMap(
-                                        options: MapOptions(
-                                          center: latLngs[index],
-                                          zoom: 16,
-                                        ),
-                                        nonRotatedChildren: [
-                                          TileLayer(
-                                            urlTemplate:
-                                                "https://api.tomtom.com/map/1/tile/basic/main/"
-                                                "{z}/{x}/{y}.png?key=$apiKey",
-                                            additionalOptions: const {
-                                              "apiKey": apiKey,
-                                            },
-                                          ),
-                                          MarkerLayer(
-                                            markers: [
-                                              Marker(
-                                                point: latLngs[index]!,
-                                                width: 35,
-                                                height: 35,
-                                                builder: (context) =>
-                                                    const Icon(
-                                                  Icons.location_pin,
-                                                  color: Colors.red,
-                                                  size: 24,
-                                                ),
-                                                anchorPos: AnchorPos.align(
-                                                    AnchorAlign.top),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                            ),
+                            SizedBox(
+                              width: 0.4.w,
+                              child: TextfieldComponent(
+                                hintText: "Longitude...",
+                                onChanged: (value) {},
+                                color: Colors.white,
+                                controller: longsController[index],
+                                inputType: TextInputType.streetAddress,
+                                isRequired: true,
+                              ),
+                            ),
+                          ],
                         ),
                         V(16),
                         TextfieldComponent(
@@ -226,7 +287,9 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                       setState(() {
                         addressesController.add(TextEditingController());
                         electricalPowersController.add(TextEditingController());
-                        latLngs.add(null);
+                        // latLngs.add(null);
+                        latsController.add(TextEditingController());
+                        longsController.add(TextEditingController());
                       });
                     },
                   ),
@@ -236,14 +299,14 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                       "Simpan",
                       onPressed: () {
                         if (formKey.currentState?.validate() ?? false) {
-                          if (latLngs.any((element) => element == null)) {
-                            print('masuk sini kah ????');
-                            showToast('Silakan dilengkapi semua lokasi');
-                            return;
-                          }
+                          // if (latLngs.any((element) => element == null)) {
+                          //   print('masuk sini kah ????');
+                          //   showToast('Silakan dilengkapi semua lokasi');
+                          //   return;
+                          // }
                           // add data customer
                           CustomerModel customer = CustomerModel(
-                            id: const Uuid().v1(),
+                            id: widget.customer?.id ?? const Uuid().v1(),
                             name: nameController.text,
                             birthdate: birthdateController.text,
                             phoneNumber: phoneNumberController.text,
@@ -252,8 +315,10 @@ class _FormCustomerScreenState extends State<FormCustomerScreen> {
                               addressesController.length,
                               (index) => AddressModel(
                                 address: addressesController[index].text,
-                                latitude: latLngs[index]!.latitude,
-                                longitude: latLngs[index]!.longitude,
+                                latitude:
+                                    double.tryParse(latsController[index].text),
+                                longitude: double.tryParse(
+                                    longsController[index].text),
                                 electricalPower:
                                     electricalPowersController[index].text,
                               ),

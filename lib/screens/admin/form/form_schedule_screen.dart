@@ -11,6 +11,7 @@ import 'package:staff_cleaner/models/address_model.dart';
 import 'package:staff_cleaner/models/customer_model.dart';
 import 'package:staff_cleaner/models/schedule_model.dart';
 import 'package:staff_cleaner/models/staff_model.dart';
+import 'package:staff_cleaner/screens/admin/form/form_customer_screen.dart';
 import 'package:staff_cleaner/services/schedule_service.dart';
 import 'package:staff_cleaner/values/color.dart';
 import 'package:staff_cleaner/values/constant.dart';
@@ -124,6 +125,7 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                   TextfieldDropdownComponent(
                     hintText: "Nama customer...",
                     onChanged: (value) {
+                      print('--> on change jalan kah');
                       setState(() {
                         customerAddressController.clearDropDown();
                       });
@@ -139,6 +141,26 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                     isRequired: true,
                     readOnly: widget.schedule != null,
                   ),
+                  V(16),
+                  if (customerNameController.dropDownValue != null) ...[
+                    ButtonElevatedComponent(
+                      "Edit Customer",
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FormCustomerScreen(
+                              customer: CustomerModel.fromMap(
+                                customerNameController.dropDownValue!.value,
+                              ),
+                            ),
+                          ),
+                        );
+
+                        setState(() {});
+                      },
+                    ),
+                  ],
                   V(16),
                   TextfieldDropdownComponent(
                     hintText: "Alamat",
