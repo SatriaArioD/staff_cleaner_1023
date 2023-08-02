@@ -49,17 +49,17 @@ class CorouselStaffComponent extends StatelessWidget {
                             child: IconButton(
                               onPressed: () {
                                 // var noSurat = "031/INV/YBS/121123";
-                                final user = fs.getUser();
-
-                                showDialogNoSurat(context, noSurat, noSurat1, () {
-                                  navigatePush(NotaStaffScreen(
-                                      noSurat: "${noSurat.text}/INV/YBS/${noSurat1.text}",
-                                      item: item,
-                                      user: user));
-
-                                  noSurat.text = "";
-                                  noSurat1.text = "";
-                                });
+                                // final user = fs.getUser();
+                                //
+                                // showDialogNoSurat(context, noSurat, noSurat1, () {
+                                //   navigatePush(NotaStaffScreen(
+                                //       noSurat: "${noSurat.text}/INV/YBS/${noSurat1.text}",
+                                //       item: item,
+                                //       user: user));
+                                //
+                                //   noSurat.text = "";
+                                //   noSurat1.text = "";
+                                // });
                               },
                               icon: const Icon(Icons.speaker_notes),
                             ),

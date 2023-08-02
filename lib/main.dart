@@ -1,18 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:staff_cleaner/component/text/text_component.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:staff_cleaner/cubit/customer_cubit.dart';
+import 'package:staff_cleaner/cubit/schedule_cubit.dart';
+import 'package:staff_cleaner/cubit/staff_cubit.dart';
 import 'package:staff_cleaner/screens/admin/admin_main.dart';
 import 'package:staff_cleaner/screens/autentikasi/login/login_screen.dart';
 import 'package:staff_cleaner/screens/staff/staff_main.dart';
+import 'package:staff_cleaner/services/customer_service.dart';
+import 'package:staff_cleaner/services/schedule_service.dart';
+import 'package:staff_cleaner/services/staff_service.dart';
 import 'package:staff_cleaner/values/color.dart';
 import 'package:staff_cleaner/values/global_utils.dart';
-import 'package:staff_cleaner/values/kunci_utils.dart';
 import 'package:staff_cleaner/values/navigate_utils.dart';
 import 'package:staff_cleaner/values/output_utils.dart';
 import 'package:staff_cleaner/values/screen_utils.dart';
-import 'firebase_options.dart';
 
+import 'firebase_options.dart';
 import 'services/firebase_services.dart';
 
 Future<void> main() async {
@@ -25,20 +29,70 @@ Future<void> main() async {
 
 // test
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late CustomerService customerService;
+  late ScheduleService scheduleService;
+  late StaffService staffService;
+
+  @override
+  void initState() {
+    customerService = CustomerService();
+    scheduleService = ScheduleService();
+    staffService = StaffService();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    FirebaseServices fs = FirebaseServices();
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: primaryColor,
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create: (context) => customerService,
+        ),
+        RepositoryProvider(
+          create: (context) => scheduleService,
+        ),
+        RepositoryProvider(
+          create: (context) => staffService,
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => CustomerCubit(
+              customerService: customerService,
+            ),
+          ),
+          BlocProvider(
+            create: (context) => ScheduleCubit(
+              scheduleService: scheduleService,
+            ),
+          ),
+          BlocProvider(
+            create: (context) => StaffCubit(
+              staffService: staffService,
+            ),
+          ),
+        ],
+        child: Builder(builder: (context) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              primarySwatch: primaryColor,
+            ),
+            home: MainPage(),
+            navigatorKey: GlobalContext.navigatorKey,
+            debugShowCheckedModeBanner: false,
+          );
+        }),
       ),
-      home: MainPage(),
-      navigatorKey: GlobalContext.navigatorKey,
-      debugShowCheckedModeBanner: false,
     );
   }
 }

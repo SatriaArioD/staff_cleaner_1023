@@ -41,7 +41,8 @@ class LoginScreen extends StatelessWidget {
                     child: SizedBox(
                       width: 0.6.w,
                       height: 0.2.h,
-                      child: const Image(image: AssetImage('assets/images/logo.png')),
+                      child: const Image(
+                          image: AssetImage('assets/images/logo.png')),
                     ),
                   ),
                   const TextComponent(
@@ -55,12 +56,14 @@ class LoginScreen extends StatelessWidget {
                     hintText: "Masukkan email anda...",
                     onChanged: (value) {},
                     controller: emailController,
+                    isRequired: true,
                   ),
                   V(0.04.h),
                   TextfieldPasswordComponent(
                     hintText: "Masukkan password anda...",
                     onChanged: (value) {},
                     controller: passwordController,
+                    isRequired: true,
                   ),
                   V(0.04.h),
                   Center(
@@ -72,9 +75,11 @@ class LoginScreen extends StatelessWidget {
                         final getEmail = emailController.text;
                         final getPassword = passwordController.text;
 
-                        final res = await fs.signInWithEmailAndPassword(getEmail, getPassword);
+                        final res = await fs.signInWithEmailAndPassword(
+                            getEmail, getPassword);
                         final user = res.user;
-                        if (user?.email == "adm.yukbersihin@gmail.com") {
+                        if (user?.email == "adm.yukbersihin@gmail.com" ||
+                            user?.email == 'admin@gmail.com') {
                           navigatePushAndRemove(const AdminMain());
                         } else {
                           navigatePushAndRemove(const StaffMain());
