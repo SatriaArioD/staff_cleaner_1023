@@ -79,8 +79,8 @@ final listItemDibershikan = {
     {"title": listItems[20], "harga": 250000},
     {"title": listItems[21], "harga": 325000},
     {"title": listItems[22], "harga": 350000},
-    {"title": listItems[23], "harga": 30000},
-    {"title": listItems[24], "harga": 40000},
+    {"title": listItems[23], "harga": 0, "is_custom": true},
+    {"title": listItems[24], "harga": 0, "is_custom": true},
     {"title": listItems[25], "harga": 50000},
     {"title": listItems[26], "harga": 200000},
     {"title": listItems[27], "harga": 250000},
@@ -138,7 +138,7 @@ final listItemDibershikan = {
     {"title": listItems[22], "harga": 450000},
     {"title": listItems[26], "harga": 300000},
     {"title": listItems[27], "harga": 350000},
-  ]
+  ],
 };
 
 final listItemLayanan = [
@@ -146,6 +146,7 @@ final listItemLayanan = [
   {"title": "Cuci Standard"},
   {"title": "Cuci Premium + UV"},
   {"title": "Revive"},
+  {"title": "Disinfeksi"},
 ];
 
 const String apiKey = "QILGlvvYIhzPILGUjPMcPFwoMgTs0PKn";

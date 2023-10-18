@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:staff_cleaner/component/button/button_component.dart';
 import 'package:staff_cleaner/component/text/text_component.dart';
+import 'package:staff_cleaner/component/textfield/textfield_component.dart';
 import 'package:staff_cleaner/component/textfield/textfield_date_component.dart';
 import 'package:staff_cleaner/component/textfield/textfield_dropdown_component%20.dart';
 import 'package:staff_cleaner/cubit/customer_cubit.dart';
 import 'package:staff_cleaner/cubit/staff_cubit.dart';
+import 'package:staff_cleaner/dialog/custom_price_dialog.dart';
 import 'package:staff_cleaner/models/address_model.dart';
 import 'package:staff_cleaner/models/customer_model.dart';
 import 'package:staff_cleaner/models/schedule_model.dart';
@@ -46,6 +48,12 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
   ];
 
   List<Map<dynamic, dynamic>> items = [];
+
+  final List<String> discountType = ['Persentase', 'Nominal'];
+  String? discountSelected;
+  final SingleValueDropDownController discountController =
+      SingleValueDropDownController();
+  final TextEditingController discountTextController = TextEditingController();
 
   List<CustomerModel> customerList() {
     return context.watch<CustomerCubit>().state.data ?? [];
@@ -98,6 +106,14 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
             ),
         );
       }
+
+      String? discountType = widget.schedule!.discountType;
+      if (discountType != null) {
+        discountController.setDropDown(
+          DropDownValueModel(name: discountType, value: discountType),
+        );
+        discountTextController.text = widget.schedule!.discount ?? '';
+      }
     }
     super.initState();
   }
@@ -125,7 +141,6 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                   TextfieldDropdownComponent(
                     hintText: "Nama customer...",
                     onChanged: (value) {
-                      print('--> on change jalan kah');
                       setState(() {
                         customerAddressController.clearDropDown();
                       });
@@ -258,24 +273,73 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                         return dialogList(
                             title: "Services",
                             item: listItemLayanan,
-                            onGetItem: (service) {
+                            onGetItem: (service) async {
                               logO("service", m: service);
 
                               String title = service["title"];
+
+                              if (title == 'Disinfeksi') {
+                                /// dialog add panjang, lebar, harga
+                                Map? result = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CustomPriceDialog(
+                                      title: title,
+                                    );
+                                  },
+                                );
+
+                                if (result != null) {
+                                  setState(() {
+                                    Map value = {
+                                      "service": title,
+                                      "item": title,
+                                    };
+                                    value.addAll(result);
+                                    items.add(value);
+                                  });
+                                }
+                                return {};
+                              }
+
                               List<Map<String, dynamic>> itemYangDibersihkan =
                                   listItemDibershikan[title]!;
 
                               return dialogList(
                                   title: "Item",
                                   item: itemYangDibersihkan,
-                                  onGetItem: (item) {
-                                    setState(() {
-                                      items.add({
-                                        "service": title,
-                                        "item": item["title"],
-                                        "harga": item["harga"]
+                                  onGetItem: (item) async {
+                                    bool isCustom = item['is_custom'] ?? false;
+
+                                    if (isCustom) {
+                                      /// dialog add panjang, lebar, harga
+                                      Map? result = await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return CustomPriceDialog(
+                                              title: item["title"]);
+                                        },
+                                      );
+
+                                      if (result != null) {
+                                        setState(() {
+                                          Map value = {
+                                            "service": title,
+                                            "item": item["title"],
+                                          };
+                                          value.addAll(result);
+                                          items.add(value);
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        items.add({
+                                          "service": title,
+                                          "item": item["title"],
+                                          "harga": item["harga"]
+                                        });
                                       });
-                                    });
+                                    }
 
                                     logO("item", m: item);
                                   });
@@ -344,6 +408,31 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                       ],
                     ],
                   ),
+                  V(24),
+                  TextfieldDropdownComponent(
+                    hintText: "Tambahkan Diskon",
+                    items: List.generate(discountType.length, (index) {
+                      return {
+                        "name": discountType[index],
+                        "value": discountType[index],
+                      };
+                    }).toList(),
+                    controller: discountController,
+                    onChanged: (val) {
+                      discountTextController.clear();
+                      setState(() {});
+                    },
+                  ),
+                  if (discountController.dropDownValue != null) ...[
+                    V(16),
+                    TextfieldComponent(
+                      hintText:
+                          "${discountController.dropDownValue!.name} Diskon",
+                      controller: discountTextController,
+                      inputType: TextInputType.number,
+                      color: Colors.white,
+                    ),
+                  ],
                   V(48),
                   Center(
                     child: ButtonElevatedComponent(
@@ -374,6 +463,9 @@ class _FormScheduleScreenState extends State<FormScheduleScreen> {
                                     StaffModel.fromMap(e.dropDownValue!.value))
                                 .toList(),
                             isFinish: false,
+                            discountType:
+                                discountController.dropDownValue?.name,
+                            discount: discountTextController.text,
                           );
 
                           context.read<ScheduleService>().update(

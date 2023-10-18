@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:staff_cleaner/models/schedule_model.dart';
 import 'package:staff_cleaner/services/firebase_services.dart';
+import 'package:intl/intl.dart';
 
 Future<Uint8List> makePdf(
   String noSurat,
@@ -20,8 +21,14 @@ Future<Uint8List> makePdf(
   List<dynamic> itemYangDibersihkan = schedule.items ?? [];
 
   final total = itemYangDibersihkan.fold(0, (i, el) {
-    return i + el["harga"] as int;
+    return i + convertPrice(el).toInt();
   });
+
+  final formatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp. ',
+    decimalDigits: 0,
+  );
 
   final qUser =
       await fs.getDataCollectionByQuery("staff", "email", user?.email);
@@ -83,13 +90,13 @@ Future<Uint8List> makePdf(
                         "${i + 1}",
                       ),
                       PaddedText(
-                        "${itemYangDibersihkan[i]["item"]}",
+                        "${itemYangDibersihkan[i]["item"]} ${convertNote(itemYangDibersihkan[i])}",
                       ),
                       PaddedText(
                         "${itemYangDibersihkan[i]["service"]}",
                       ),
                       PaddedText(
-                        "Rp. ${itemYangDibersihkan[i]["harga"]}",
+                        formatter.format(convertPrice(itemYangDibersihkan[i])),
                       )
                     ],
                   )
@@ -97,11 +104,25 @@ Future<Uint8List> makePdf(
             ),
             V(24.0),
             Container(
-                width: double.infinity,
-                color: PdfColors.grey,
-                child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text("TOTAL: Rp. $total"))),
+              width: double.infinity,
+              color: PdfColors.grey,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (convertDiscount(schedule) != null) ...[
+                      Text(
+                          'DISKON: ${schedule.discountType == 'Nominal' ? formatter.format(convertDiscount(schedule)) : '${convertDiscount(schedule)}%'} (${schedule.discountType})'),
+                      V(4.0),
+                    ],
+                    Text(
+                        "TOTAL: ${formatter.format(convertTotalWithDiscount(schedule, total))}"),
+                  ],
+                ),
+              ),
+            ),
             V(140.0),
             Align(
               alignment: Alignment.centerRight,
@@ -142,6 +163,45 @@ Future<Uint8List> makePdf(
     ),
   );
   return pdf.save();
+}
+
+String convertNote(Map value) {
+  if (value['lebar'] != null && value['panjang'] != null) {
+    return '\nlebar: ${value['lebar']}m; panjang: ${value['panjang']}m; @${value['harga']}';
+  }
+  return '';
+}
+
+num convertPrice(Map value) {
+  if (value['lebar'] != null && value['panjang'] != null) {
+    num lebar = value['lebar'];
+    num panjang = value['panjang'];
+    num harga = value['harga'];
+    num total = lebar * panjang * harga;
+    return total;
+  }
+  return value['harga'];
+}
+
+num convertTotalWithDiscount(ScheduleModel schedule, int total) {
+  num diskon = num.tryParse(schedule.discount ?? '') ?? 0;
+  String? diskonType = schedule.discountType;
+  if (diskonType != null) {
+    if (diskonType == 'Nominal') {
+      return total - diskon;
+    }
+    if (diskonType == 'Persentase') {
+      return total - ((diskon / 100) * total);
+    }
+  }
+  return total;
+}
+
+num? convertDiscount(ScheduleModel schedule) {
+  if (schedule.discountType != null) {
+    return num.tryParse(schedule.discount ?? '');
+  }
+  return null;
 }
 
 Widget PaddedText(

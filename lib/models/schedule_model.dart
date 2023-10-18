@@ -13,6 +13,8 @@ class ScheduleModel extends Equatable {
   final List<Map<dynamic, dynamic>>? items;
   final List<StaffModel>? staffs;
   final bool? isFinish;
+  final String? discountType;
+  final String? discount;
 
   const ScheduleModel({
     this.id,
@@ -23,6 +25,8 @@ class ScheduleModel extends Equatable {
     this.items,
     this.staffs,
     this.isFinish,
+    this.discountType,
+    this.discount,
   });
 
   ScheduleModel copyWith({
@@ -31,6 +35,8 @@ class ScheduleModel extends Equatable {
     List<Map<dynamic, dynamic>>? items,
     List<StaffModel>? staffs,
     bool? isFinish,
+    String? discountType,
+    String? discount,
   }) {
     return ScheduleModel(
       id: id,
@@ -41,6 +47,8 @@ class ScheduleModel extends Equatable {
       items: items ?? this.items,
       staffs: staffs ?? this.staffs,
       isFinish: isFinish ?? this.isFinish,
+      discountType: discountType ?? this.discountType,
+      discount: discount ?? this.discount,
     );
   }
 
@@ -66,6 +74,8 @@ class ScheduleModel extends Equatable {
           ? (map['staffs'] as List).map((e) => StaffModel.fromMap(e)).toList()
           : null,
       isFinish: map['isFinish'],
+      discountType: map['discount_type'],
+      discount: map['discount'],
     );
   }
 
@@ -79,6 +89,8 @@ class ScheduleModel extends Equatable {
       'items': items,
       'staffs': staffs?.map((e) => e.toMap()).toList(),
       'isFinish': isFinish,
+      'discount_type': discountType,
+      'discount': discount,
     };
   }
 
@@ -91,5 +103,7 @@ class ScheduleModel extends Equatable {
         items,
         staffs,
         isFinish,
+        discountType,
+        discount,
       ];
 }
