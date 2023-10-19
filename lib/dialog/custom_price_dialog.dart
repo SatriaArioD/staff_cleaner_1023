@@ -68,9 +68,9 @@ class _CustomPriceDialogState extends State<CustomPriceDialog> {
           onPressed: () {
             if (formKey.currentState?.validate() ?? false) {
               Navigator.pop(context, {
-                'panjang': int.parse(panjangController.text),
-                'lebar': int.parse(lebarController.text),
-                'harga': int.parse(hargaController.text),
+                'panjang': double.parse(panjangController.text),
+                'lebar': double.parse(lebarController.text),
+                'harga': double.parse(hargaController.text),
               });
             }
           },
