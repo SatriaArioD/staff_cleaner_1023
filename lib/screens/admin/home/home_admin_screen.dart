@@ -23,55 +23,61 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            backgroundColor: primaryColor,
-            elevation: 0,
-            toolbarHeight: 0.16.h,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const TextComponent(
-                  "Admin",
-                  color: Colors.white,
-                ),
-                Container(
-                    child: IconButton(
-                        onPressed: () {
-                          fs.signOut();
-                          navigatePushAndRemove(LoginScreen());
-                        },
-                        icon: const Icon(Icons.logout))),
-              ],
-            ),
-            bottom: const TabBar(
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.white,
-                indicatorSize: TabBarIndicatorSize.label,
-                indicator: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10)),
-                    color: Colors.white),
-                tabs: [
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text("Di jadwalkan"),
-                    ),
-                  ),
-                  Tab(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text("Selesai"),
-                    ),
-                  ),
-                ]),
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: primaryColor,
+          elevation: 0,
+          toolbarHeight: 0.16.h,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const TextComponent(
+                "Admin",
+                color: Colors.white,
+              ),
+              Container(
+                  child: IconButton(
+                      onPressed: () {
+                        fs.signOut();
+                        navigatePushAndRemove(LoginScreen());
+                      },
+                      icon: const Icon(Icons.logout))),
+            ],
           ),
-          body: const Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: TabBarView(children: [JadwalScreen(), SelesaiScreen()]),
-          )),
+          bottom: const TabBar(
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.white,
+              indicatorSize: TabBarIndicatorSize.label,
+              indicator: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10)),
+                  color: Colors.white),
+              tabs: [
+                Tab(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Di jadwalkan"),
+                  ),
+                ),
+                Tab(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Selesai"),
+                  ),
+                ),
+              ]),
+        ),
+        body: const Padding(
+          padding: EdgeInsets.only(top: 24),
+          child: TabBarView(
+            children: [
+              JadwalScreen(),
+              SelesaiScreen(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
