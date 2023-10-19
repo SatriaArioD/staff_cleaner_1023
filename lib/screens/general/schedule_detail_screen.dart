@@ -1,5 +1,9 @@
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:staff_cleaner/component/textfield/textfield_component.dart';
+import 'package:staff_cleaner/component/textfield/textfield_dropdown_component%20.dart';
+import 'package:staff_cleaner/dialog/custom_price_dialog.dart';
 import 'package:staff_cleaner/models/schedule_model.dart';
 import 'package:staff_cleaner/screens/staff/home/section/detail/section/map/map_screen.dart';
 import 'package:staff_cleaner/services/schedule_service.dart';
@@ -33,8 +37,31 @@ class ScheduleDetailScreen extends StatefulWidget {
 class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
   List<Map<dynamic, dynamic>> items = [];
 
+  final List<String> discountType = ['Persentase', 'Nominal'];
+  String? discountSelected;
+  final SingleValueDropDownController discountController =
+      SingleValueDropDownController();
+  final TextEditingController discountTextController = TextEditingController();
+
+  @override
+  void initState() {
+    items = widget.schedule.items ?? [];
+
+    String? discountType = widget.schedule.discountType;
+    if (discountType != null) {
+      discountController.setDropDown(
+        DropDownValueModel(name: discountType, value: discountType),
+      );
+      discountTextController.text = widget.schedule.discount ?? '';
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isAdmin = widget.isAdmin;
+    bool isFinish = widget.schedule.isFinish ?? false;
+
     return Scaffold(
       body: Container(
         width: 1.0.w,
@@ -90,35 +117,7 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                 color: Colors.white,
               ),
               V(8),
-              ...List.generate(
-                widget.schedule.items?.length ?? 0,
-                (index) {
-                  var e = widget.schedule.items![index];
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Card(
-                        elevation: 8,
-                        clipBehavior: Clip.hardEdge,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: 1.0.w,
-                            child: TextComponent(
-                              "${index + 1}. [${e["service"]}] ${e["item"]}",
-                              size: 16,
-                              weight: Lato.Light,
-                            ),
-                          ),
-                        ),
-                      ),
-                      V(8)
-                    ],
-                  );
-                },
-              ),
-              if (!widget.isAdmin) ...[
-                V(8),
+              if (!isAdmin && !isFinish) ...[
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,30 +161,133 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                       return dialogList(
                           title: "Services",
                           item: listItemLayanan,
-                          onGetItem: (service) {
+                          onGetItem: (service) async {
                             logO("service", m: service);
 
                             String title = service["title"];
+
+                            if (title == 'Disinfeksi') {
+                              /// dialog add panjang, lebar, harga
+                              Map? result = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CustomPriceDialog(
+                                    title: title,
+                                  );
+                                },
+                              );
+
+                              if (result != null) {
+                                setState(() {
+                                  Map value = {
+                                    "service": title,
+                                    "item": title,
+                                  };
+                                  value.addAll(result);
+                                  items.add(value);
+                                });
+                              }
+                              return {};
+                            }
+
                             List<Map<String, dynamic>> itemYangDibersihkan =
                                 listItemDibershikan[title]!;
 
                             return dialogList(
                                 title: "Item",
                                 item: itemYangDibersihkan,
-                                onGetItem: (item) {
-                                  setState(() {
-                                    items.add({
-                                      "service": title,
-                                      "item": item["title"],
-                                      "harga": item["harga"]
+                                onGetItem: (item) async {
+                                  bool isCustom = item['is_custom'] ?? false;
+
+                                  if (isCustom) {
+                                    /// dialog add panjang, lebar, harga
+                                    Map? result = await showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CustomPriceDialog(
+                                            title: item["title"]);
+                                      },
+                                    );
+
+                                    if (result != null) {
+                                      setState(() {
+                                        Map value = {
+                                          "service": title,
+                                          "item": item["title"],
+                                        };
+                                        value.addAll(result);
+                                        items.add(value);
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      items.add({
+                                        "service": title,
+                                        "item": item["title"],
+                                        "harga": item["harga"]
+                                      });
                                     });
-                                  });
+                                  }
 
                                   logO("item", m: item);
                                 });
                           });
                     },
                   ),
+                ),
+              ] else ...[
+                ...List.generate(
+                  widget.schedule.items?.length ?? 0,
+                  (index) {
+                    var e = widget.schedule.items![index];
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Card(
+                          elevation: 8,
+                          clipBehavior: Clip.hardEdge,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 1.0.w,
+                              child: TextComponent(
+                                "${index + 1}. [${e["service"]}] ${e["item"]}",
+                                size: 16,
+                                weight: Lato.Light,
+                              ),
+                            ),
+                          ),
+                        ),
+                        V(8)
+                      ],
+                    );
+                  },
+                ),
+              ],
+              V(24),
+              TextfieldDropdownComponent(
+                hintText: "Tambahkan Diskon",
+                items: List.generate(discountType.length, (index) {
+                  return {
+                    "name": discountType[index],
+                    "value": discountType[index],
+                  };
+                }).toList(),
+                controller: discountController,
+                readOnly: isAdmin || (!isAdmin && isFinish),
+                onChanged: (val) {
+                  discountTextController.clear();
+                  setState(() {});
+                },
+              ),
+              if (discountController.dropDownValue != null) ...[
+                V(16),
+                TextfieldComponent(
+                  hintText: "${discountController.dropDownValue!.name} Diskon",
+                  controller: discountTextController,
+                  inputType: TextInputType.number,
+                  color: Colors.white,
+                  readOnly: isAdmin || (!isAdmin && isFinish),
                 ),
               ],
               V(24),
@@ -240,10 +342,10 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                     onPressed: () {
                       context.read<ScheduleService>().update(
                             schedule: widget.schedule.copyWith(
-                              items: [
-                                ...widget.schedule.items!,
-                                ...items,
-                              ],
+                              items: items,
+                              discountType:
+                                  discountController.dropDownValue?.name,
+                              discount: discountTextController.text,
                             ),
                           );
 

@@ -8,6 +8,7 @@ class TextfieldComponent extends StatelessWidget {
   final Color color;
   final TextInputType inputType;
   final bool isRequired;
+  final bool readOnly;
 
   const TextfieldComponent({
     super.key,
@@ -18,6 +19,7 @@ class TextfieldComponent extends StatelessWidget {
     this.color = Colors.white70,
     this.inputType = TextInputType.text,
     this.isRequired = false,
+    this.readOnly = false,
   });
 
   @override
@@ -49,6 +51,7 @@ class TextfieldComponent extends StatelessWidget {
         hintText: hintText,
         fillColor: color,
       ),
+      readOnly: readOnly,
     );
   }
 }
